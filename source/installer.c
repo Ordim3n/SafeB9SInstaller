@@ -6,6 +6,7 @@
 #include "ui.h"
 #include "qff.h"
 #include "hid.h"
+#include "anim.h"
 
 #define COLOR_STATUS(s) ((s == STATUS_GREEN) ? COLOR_BRIGHTGREEN : (s == STATUS_YELLOW) ? COLOR_BRIGHTYELLOW : (s == STATUS_RED) ? COLOR_RED : COLOR_DARKGREY)
 
@@ -36,6 +37,7 @@ static char msgSector[64]      = "not started";
 static char msgCrypto[64]      = "not started";
 static char msgBackup[64]      = "not started";
 static char msgInstall[64]     = "not started";
+static u8 frame = 0;
     
 u32 ShowInstallerStatus(void) {
     const u32 pos_xb = 10;
@@ -45,6 +47,10 @@ u32 ShowInstallerStatus(void) {
     const u32 pos_yu = 230;
     const u32 pos_y0 = pos_yb + 50;
     const u32 stp = 14;
+	 
+	ShowFrame(frame);
+	if(frame < 5) frame++;
+	else frame = 0;
     
     // DrawStringF(BOT_SCREEN, pos_xb, pos_yb, COLOR_STD_FONT, COLOR_STD_BG, "SafeB9SInstaller v" VERSION "\n" "-----------------------" "\n" "https://github.com/d0k3/SafeB9SInstaller");
     DrawStringF(BOT_SCREEN, pos_xb, pos_yb, COLOR_STD_FONT, COLOR_STD_BG, APP_TITLE "\n" "%.*s" "\n" APP_URL,
@@ -73,10 +79,6 @@ u32 ShowInstallerStatus(void) {
 u32 SafeB9SInstaller(void) {
     UINT bt;
     u32 ret = 0;
-    
-    // initialization
-    ShowString("Initializing, please wait...");
-    
     
     // step #0 - a9lh check
     snprintf(msgA9lh, 64, (IS_A9LH && !IS_SIGHAX) ? "installed" : "not installed");
@@ -133,12 +135,7 @@ u32 SafeB9SInstaller(void) {
         return 1;
     }
     if (CheckFirmPayload(FIRM_BUFFER, msgFirm) != 0) {
-        #ifndef OPEN_INSTALLER
-        statusFirm = STATUS_RED;
-        return 1;
-        #else
         unknown_payload = true;
-        #endif
     }
     statusFirm = unknown_payload ? STATUS_YELLOW : STATUS_GREEN;
     ShowInstallerStatus();

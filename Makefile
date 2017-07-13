@@ -16,11 +16,11 @@ include $(DEVKITARM)/ds_rules
 # INCLUDES is a list of directories containing header files
 # SPECS is the directory containing the important build and link files
 #---------------------------------------------------------------------------------
-export TARGET	:=	SafeB9SInstaller
+export TARGET	:=	Un-SafeFirmInstaller
 BUILD		:=	build
-SOURCES		:=	source source/common source/fs source/crypto source/fatfs source/nand source/safety
+SOURCES		:=	source source/common source/fs source/crypto source/fatfs source/nand source/safety source/quicklz
 DATA		:=	data
-INCLUDES	:=	source source/common source/font source/fs source/crypto source/fatfs source/nand source/safety
+INCLUDES	:=	source source/common source/font source/fs source/crypto source/fatfs source/nand source/safety source/quicklz
 
 #---------------------------------------------------------------------------------
 # options for code generation
@@ -45,10 +45,6 @@ else ifeq ($(FONT),GB)
 CFLAGS	+=	-DFONT_GB
 else
 CFLAGS	+=	-DFONT_6X10
-endif
-
-ifeq ($(OPEN),1)
-	CFLAGS += -DOPEN_INSTALLER
 endif
 
 CXXFLAGS	:= $(CFLAGS) -fno-rtti -fno-exceptions
@@ -205,6 +201,17 @@ $(OUTPUT).elf	:	$(OFILES)
 	@$(OBJCOPY) --set-section-flags .bss=alloc,load,contents -O binary $< $@
 	@echo built ... $(notdir $@)
 
+
+-include $(DEPENDS)
+
+
+#---------------------------------------------------------------------------------
+# you need a rule like this for each extension you use as binary data
+#---------------------------------------------------------------------------------
+%.qlz.o: %.qlz
+#---------------------------------------------------------------------------------
+	@echo $(notdir $<)
+	@$(bin2o)
 
 -include $(DEPENDS)
 
